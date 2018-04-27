@@ -1,0 +1,11 @@
+{
+  "presets": [
+    ["env", {"targets": {"node": true}}]
+  ],
+  "plugins": [
+    "transform-object-rest-spread"
+  ],
+  "sourceMaps": true,
+  "retainLines": false,
+  "ignore": "**/TODO_*.js"
+}

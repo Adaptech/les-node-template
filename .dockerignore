@@ -1,0 +1,9 @@
+.git/
+.db/
+.vagrant/
+db/
+test/
+infrastructure/
+tools/
+scripts/
+Vagrantfile

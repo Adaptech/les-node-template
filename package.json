@@ -1,0 +1,59 @@
+{
+  "name": "vanilla-cqrs",
+  "version": "0.0.1",
+  "description": "Vanilla CQRS project",
+  "main": "src/app.js",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cors": "^2.8.4",
+    "express": "^4.15.3",
+    "glob": "^7.1.2",
+    "leveldown": "^2.1.0",
+    "levelup": "^2.0.1",
+    "long": "^3.2.0",
+    "morgan": "^1.8.2",
+    "node-eventstore-client": "^0.2.0",
+    "passport": "^0.3.2",
+    "passport-strategy": "^1.0.0",
+    "pg-promise": "^6.3.5",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/long": "^3.0.32",
+    "@types/node": "^8.0.57",
+    "assert": "^1.4.1",
+    "babel-cli": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
+    "concurrently": "^3.5.0",
+    "eslint": "^4.3.0",
+    "husky": "^0.14.3",
+    "lint-staged": "^4.0.2",
+    "mocha": "^3.4.2"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "babel src --out-dir dist --source-maps",
+    "start": "node $NODE_DEBUG_OPTION -r babel-register src/app local",
+    "test": "mocha $NODE_DEBUG_OPTION --compilers js:babel-core/register --recursive",
+    "eslint-fix": "eslint --fix src test",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "eslint --fix",
+      "git add"
+    ],
+    "test/**/*.js": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "keywords": [
+    "vanilla",
+    "cqrs"
+  ],
+  "author": "Adaptech Solutions",
+  "license": "UNLICENSED",
+  "private": true
+}
