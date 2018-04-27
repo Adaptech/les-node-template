@@ -1,0 +1,27 @@
+{
+  "logLevel": "info",
+  "http": {
+    "httpPort": 3001,
+    "useHttps": false,
+    "accessLogFormat": ":date[iso] :remote-addr :method :url HTTP/:http-version :status :res[content-length] - :response-time ms",
+    "authStrategy": "",
+    "staticRoutes": [
+      {"route": "/", "path": "../web/build", "secure": true},
+      {"regexRoute": "^\/(?!api).*", "path": "../web/build", "secure": true}
+    ]
+  },
+  "eventStore": {
+    "type": "ges",
+    "prefix": "",
+    "endPoint": "tcp://eventstore:1113",
+    "credentials": {"username": "admin", "password": "changeit"}
+  },
+  "readModelStore": "postgres",
+  "postgres": {
+    "host": "db",
+    "port": 5432,
+    "database": "vanillacqrs",
+    "user": "vanillacqrs",
+    "password": "vanillacqrs"
+  }
+}

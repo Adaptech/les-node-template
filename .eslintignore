@@ -1,0 +1,15 @@
+.git
+.idea
+.vscode
+CDOpenTool
+config
+data
+infrastructure
+pos-service
+node_modules
+releaase
+typings
+utils
+web/build
+web/node_modules
+web/public
