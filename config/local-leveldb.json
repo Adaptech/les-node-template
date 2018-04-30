@@ -4,11 +4,7 @@
     "httpPort": 3001,
     "useHttps": false,
     "accessLogFormat": ":date[iso] :remote-addr :method :url HTTP/:http-version :status :res[content-length] - :response-time ms",
-    "authStrategy": "",
-    "staticRoutes": [
-      {"route": "/", "path": "./web/build", "secure": true},
-      {"regexRoute": "^\/(?!api).*", "path": "./web/build", "secure": true}
-    ]
+    "authStrategy": ""
   },
   "eventStore": {
     "type": "ges",

@@ -9,7 +9,7 @@
   "eventStore": {
     "type": "ges",
     "namespace": "",
-    "endPoint": "tcp://localhost:1113",
+    "endPoint": "tcp://eventstore:1113",
     "credentials": {"username": "admin", "password": "changeit"}
   },
   "readModelStore": "memdb"
