@@ -59,7 +59,7 @@ export default function factory(config, eventFactory, eventStore, aggregateCache
       expectedVersion++;
     }
     // execute
-    const uncommittedEvents = aggregate.execute(command);
+    const uncommittedEvents = await aggregate.execute(command);
     // save
     const currentVersion = await eventStore.save(streamName, uncommittedEvents, expectedVersion);
     // TODO: this is wrong it's creating a memento and caching aggregate in it's previous state since uncommitted events are not hydrated

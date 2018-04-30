@@ -14,14 +14,8 @@ mkdir -p ${RELEASE_DIR}
 cp -R config ${RELEASE_DIR}/
 cp -R test ${RELEASE_DIR}/
 cp -R src ${RELEASE_DIR}/
-cp .babel* ${RELEASE_DIR}/
-cp .eslint* ${RELEASE_DIR}/
-cp .gitignore ${RELEASE_DIR}/
-cp package*.json ${RELEASE_DIR}/
-cp yarn.lock ${RELEASE_DIR}/
-cp Dockerfile ${RELEASE_DIR}/
-cp README.md ${RELEASE_DIR}/
-cp LICENSE ${RELEASE_DIR}/
+cp * ${RELEASE_DIR}/
+cp .* ${RELEASE_DIR}/
 
 tar -C ${RELEASES_DIR} -zcf ${RELEASES_DIR}/${RELEASE_NAME}.tar.gz ${RELEASE_NAME}
 echo "Done"
