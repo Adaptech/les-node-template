@@ -27,8 +27,6 @@
     "babel-preset-env": "^1.6.0",
     "concurrently": "^3.5.0",
     "eslint": "^4.3.0",
-    "husky": "^0.14.3",
-    "lint-staged": "^4.0.2",
     "mocha": "^3.4.2"
   },
   "scripts": {
@@ -36,18 +34,7 @@
     "build": "babel src --out-dir dist --source-maps",
     "start": "node $NODE_DEBUG_OPTION -r babel-register src/app local",
     "test": "mocha $NODE_DEBUG_OPTION --compilers js:babel-core/register --recursive",
-    "eslint-fix": "eslint --fix src test",
-    "precommit": "lint-staged"
-  },
-  "lint-staged": {
-    "src/**/*.js": [
-      "eslint --fix",
-      "git add"
-    ],
-    "test/**/*.js": [
-      "eslint --fix",
-      "git add"
-    ]
+    "eslint-fix": "eslint --fix src test"
   },
   "keywords": [
     "vanilla",
