@@ -46,9 +46,12 @@ export default async function initRead(services, storageBootstrap, readModels) {
   await subscribeFromLastCheckPoint(services, eventStore);
 }
 
+// This functions handles 3 scenarios:
+// - Creating the read models "tables" at first run
+// - Updating the read models "tables" if version changed
+// - Continue updating read models "tables" if it did not finish (crash)
 async function updateReadModels(services, eventStore) {
   try {
-    // TODO this should not rely on esClient
     const { builder, checkPointStoreFactory, esStreamReaderFactory, lastCheckPointStore, logger, mapper, readModels } = services;
     const readModelsToUpdate = await getReadModelsToUpdate(readModels, mapper);
     if (!readModelsToUpdate.length) return;
@@ -72,8 +75,7 @@ async function updateReadModels(services, eventStore) {
     }
 
     if (lastCheckPoint) {
-      logger.info(`Processing events starting from ${lastCheckPoint}...`);
-      //TODO: this is incompatible with GoES
+      logger.info(`Processing events up to ${lastCheckPoint}...`);
       const allStreamReader = esStreamReaderFactory("$all", startFrom);
       let ev;
       while ((ev = await allStreamReader.readNext())) {
@@ -83,14 +85,16 @@ async function updateReadModels(services, eventStore) {
       }
     }
 
-    logger.info(`Done rebuilding read models...`);
-    await checkPointStore.put(null);
+    logger.info(`Updating read models versions...`);
+    await checkPointStore.put(START);
     for (const readModelToUpdate of readModelsToUpdate) {
       const models = getModelsFor(readModelToUpdate);
       for (const model of models) {
-        await mapper.setModelVersion(model);
+        await mapper.setModelVersion(model, readModelToUpdate.config.version || 1);
       }
     }
+
+    logger.info(`Done rebuilding read models.`);
   } catch (e) {
     const error = new Error(`Failed to update read models: ${e.message}`);
     error.inner = e;
@@ -104,7 +108,7 @@ async function getReadModelsToUpdate(readModels, mapper) {
     const readModel = readModels[k];
     const currentVersion = readModel.config.version || 1;
     const version = await mapper.getModelVersion(readModel.name);
-    if (currentVersion !== version) {
+    if (currentVersion !== version || process.env.LES_FORCE_RM_REBUILD) {
       readModelsToUpdate.push(readModel);
     }
   }
