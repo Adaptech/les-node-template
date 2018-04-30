@@ -7,6 +7,10 @@ export default class NoOpLogger {
     // nothing to do here
   }
 
+  warn() {
+    // nothing to do here
+  }
+
   error() {
     // nothing to do here
   }

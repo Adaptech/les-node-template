@@ -19,15 +19,21 @@ export class TransactionalRepository {
   }
 
   /**
-   * Update one entity matching constraints with change
+   * Update one entity matching constraints with changes
    * @param {object} where
-   * @param {object|updateOneCallback} changes
+   * @param {object} changes
    */
   updateOne(where, changes) {
     if (typeof changes === 'object') {
       return this._updateStatic(where, changes);
     }
     if (typeof changes === 'function') {
+      // ND - deprecating this for multiple reasons:
+      // - there's a possible unhandled promise rejection here because result is only resolved in transaction action
+      // - this method has two signatures
+      // - the callback version is not explicit that it reads data from committed
+      // - should be replaced by findOne({query}) then updateOne({id})
+      this._logger.warn("DEPRECATED: TransactionalRepository.updateOne({query}, callback) is deprecated. Instead use findOne({query}) then updateOne({id}, {calculatedChanges}).");
       const result = this._readRepository.findOne(this._modelName, where, true);
       this._transaction.add(async() => {
         const actualChanges = this._processRow(await result, changes);
@@ -40,19 +46,12 @@ export class TransactionalRepository {
   }
 
   /**
-   * Update multiple entities matching constraints with change
+   * Update multiple entities matching constraints with the same changes
    * @param {object} where
-   * @param {object} change
+   * @param {object} changes
    */
-  updateWhere(where, change) {
-    if (typeof change === 'object') {
-      return this._updateStatic(where, change);
-    }
-    if (typeof change === 'function') {
-      //TODO updateWhere with function
-      throw new Error('Not Implemented.');
-    }
-    throw new Error('Invalid parameter for change, must be an object or a function.');
+  updateWhere(where, changes) {
+    return this._updateStatic(where, changes);
   }
 
   /**
