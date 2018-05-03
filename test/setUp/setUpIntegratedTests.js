@@ -24,7 +24,7 @@ export default async function setUp({eventsMap, readModels} = {}) {
   const eventFactory = createDefaultEventFactory(eventsMap);
   const aggregateCache = new AggregateCache();
   const snapshotStore = new SnapshotStore();
-  const commandHandler = commandHandlerFactory({}, eventFactory, eventStore, aggregateCache, snapshotStore);
+  const commandHandler = commandHandlerFactory({}, eventFactory, eventStore, aggregateCache, snapshotStore, logger);
   const readEvents = async(streamName, start = 0, count = DEFAULT_BATCH_SIZE) => {
     const result = await esConnection.readStreamEventsForward(streamName, start, count, true);
     return result.map(ev => {

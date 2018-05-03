@@ -1,11 +1,11 @@
 import {Snapshot, DEFAULT_SNAPSHOT_THRESHOLD} from "./snapshot";
 import {CachedAggregate} from "./aggregateCache";
 
-class InvalidRequest extends Error {
-  constructor(message) {
+class InvalidAggregateIdError extends Error {
+  constructor(message = "Invalid aggregateId, must be a non-empty string.") {
     super();
-    Error.captureStackTrace(this, InvalidRequest);
-    this.name = InvalidRequest.name;
+    Error.captureStackTrace(this, InvalidAggregateIdError);
+    this.name = InvalidAggregateIdError.name;
     this.message = message;
   }
 }
@@ -16,13 +16,13 @@ class InvalidRequest extends Error {
  * @param {EventStore} eventStore
  * @param {AggregateCache} aggregateCache
  * @param {SnapshotStore} snapshotStore
+ * @param {Logger} logger
  * @return {commandHandler}
  */
-export default function factory(config, eventFactory, eventStore, aggregateCache, snapshotStore) {
+export default function factory(config, eventFactory, eventStore, aggregateCache, snapshotStore, logger) {
   const snapshotThreshold = config.snapshotThreshold || DEFAULT_SNAPSHOT_THRESHOLD;
   return async function commandHandler(TAggregate, aggregateId, command) {
     if (typeof TAggregate !== 'function') throw new TypeError("TAggregate must be a function.");
-    if (typeof aggregateId !== 'string' || aggregateId === "") throw new InvalidRequest("aggregateId must be a non-empty string.");
     if (typeof command !== 'object' || command === null) throw new TypeError("command must be a non-null object.");
 
     // load
@@ -61,13 +61,20 @@ export default function factory(config, eventFactory, eventStore, aggregateCache
     // execute
     const uncommittedEvents = await aggregate.execute(command);
     // save
+    if (typeof aggregateId !== 'string' || aggregateId === "") throw new InvalidAggregateIdError();
     const currentVersion = await eventStore.save(streamName, uncommittedEvents, expectedVersion);
-    // TODO: this is wrong it's creating a memento and caching aggregate in it's previous state since uncommitted events are not hydrated
-    if ((currentVersion - lastSnapshotVersion) >= snapshotThreshold) {
-      await snapshotStore.add(new Snapshot(streamName, currentVersion, aggregate.createMemento()));
-      lastSnapshotVersion = currentVersion;
+    try {
+      for (const event of uncommittedEvents) {
+        aggregate.hydrate(event);
+      }
+      if ((currentVersion - lastSnapshotVersion) >= snapshotThreshold) {
+        await snapshotStore.add(new Snapshot(streamName, currentVersion, aggregate.createMemento()));
+        lastSnapshotVersion = currentVersion;
+      }
+      await aggregateCache.set(new CachedAggregate(streamName, currentVersion, lastSnapshotVersion, aggregate));
+    } catch (e) {
+      logger.warn(e.stack);
     }
-    await aggregateCache.set(new CachedAggregate(streamName, currentVersion, lastSnapshotVersion, aggregate));
     return command;
   };
 }
