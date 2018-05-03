@@ -27,7 +27,7 @@ export default async function initWrite(services, eventFactory) {
   const {config, eventStore, readRepository, logger} = services;
   const aggregateCache = new AggregateCache();
   const snapshotStore = new SnapshotStore();
-  const commandHandler = commandHandlerFactory(config, eventFactory, eventStore, aggregateCache, snapshotStore);
+  const commandHandler = commandHandlerFactory(config, eventFactory, eventStore, aggregateCache, snapshotStore, logger);
   const commandActionHelper = new CommandActionHelper(commandHandler, readRepository, logger);
   Object.assign(services, {eventFactory, commandHandler, commandHandlerFactory, commandActionHelper});
 }
