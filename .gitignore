@@ -49,3 +49,5 @@ typings.json
 **/.idea/workspace.xml
 
 .db/
+
+releases/
