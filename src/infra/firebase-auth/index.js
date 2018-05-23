@@ -4,7 +4,7 @@ import {ExtractJwt} from "passport-jwt";
 import Strategy from "./Strategy";
 import * as firebase from "firebase-admin";
 
-export default function({app, config, findUser}) {
+export default function({app, config, findUser, logger}) {
   const {firebaseAuth: firebaseAuthConfig} = config;
   if (!firebaseAuthConfig) {
     throw new Error("Missing firebaseAuthConfig section in config.");
@@ -26,10 +26,15 @@ export default function({app, config, findUser}) {
       ExtractJwt.fromUrlQueryParameter('access_token')
     ])
   };
-  passport.use(new Strategy(opts, function(jwt, done) {
-    firebase.auth().verifyIdToken(jwt)
-      .then(decodedIdToken => findUser({userId: decodedIdToken.uid}), done)
-      .then(user => done(null, user || false), done);
+  passport.use(new Strategy(opts, async function(jwt, done) {
+    try {
+      const decodedIdToken = await firebase.auth().verifyIdToken(jwt);
+      const user = await findUser({userId: decodedIdToken.uid});
+      done(null, user || false);
+    } catch (e) {
+      logger.error("firebase authentication failed:", e.stack || e);
+      done(null, false);
+    }
   }));
   const authenticator = passport.authenticate('passthru-jwt', {session: false});
   const excludedPaths = firebaseAuthConfig.excludePaths || [];
