@@ -7,6 +7,8 @@ import glob from "glob";
 import {newInject} from "./utils";
 import {registerSecureRoutes, registerNonSecureRoutes} from "./staticRoutes";
 import ReadModelGenericController from "./ReadModelGenericController";
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "../../swagger.json";
 
 export function loadControllersFactories(logger) {
   return glob.sync(path.resolve(__dirname, '../controllers/**/*.js'))
@@ -44,6 +46,7 @@ export async function initWeb(services, controllerFactories) {
   app.use(morgan(httpConfig.accessLogFormat || 'common'));
   app.use(cors({origin: true, credentials: true}));
   app.use(jsonParser());
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
   services.app = app;
 

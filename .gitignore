@@ -36,6 +36,7 @@ jspm_packages
 # Optional npm cache directory
 .npm
 yarn.lock
+package-lock.json
 .yarnclean
 
 # Optional REPL history
